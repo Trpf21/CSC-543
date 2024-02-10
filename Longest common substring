@@ -1,0 +1,60 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+pair<vector<vector<int>>, string> longest_common_substring(const string& str1, const string& str2) {
+    int m = str1.size();
+    int n = str2.size();
+
+    // Initialize the table with zeros
+    vector<vector<int>> table(m + 1, vector<int>(n + 1, 0));
+
+    // Variables to keep track of the longest substring and its end position
+    int max_length = 0;
+    int end_position = 0;
+
+    // Fill the table
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            if (str1[i - 1] == str2[j - 1]) {
+                table[i][j] = table[i - 1][j - 1] + 1;
+                if (table[i][j] > max_length) {
+                    max_length = table[i][j];
+                    end_position = i;
+                }
+            } else {
+                table[i][j] = 0;
+            }
+        }
+    }
+
+    // Extract the longest common substring
+    string longest_substring = str1.substr(end_position - max_length, max_length);
+
+    return make_pair(table, longest_substring);
+}
+
+int main() {
+    string str1 = "HDUUJH";
+    string str2 = "JHHDUU";
+
+    auto result = longest_common_substring(str1, str2);
+    auto table = result.first;
+    auto longest_substring = result.second;
+
+    // Print the table
+    cout << "Dynamic Programming Table:" << endl;
+    for (const auto& row : table) {
+        for (int value : row) {
+            cout << value << " ";
+        }
+        cout << endl;
+    }
+
+    // Print the longest common substring
+    cout << "Longest Common Substring: " << longest_substring << endl;
+
+    return 0;
+}
