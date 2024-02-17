@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+struct Node {
+    char data;
+    int freq;
+    Node* left;
+    Node* right;
+
+    Node(char data, int freq) : data(data), freq(freq), left(nullptr), right(nullptr) {}
+
+    bool operator<(const Node& other) const {
+        return freq > other.freq;
+    }
+};
+
+Node* build_huffman_tree(const string& s, const vector<int>& f) {
+    priority_queue<Node> pq;
+
+    for (size_t i = 0; i < s.size(); ++i) {
+        pq.push(Node(s[i], f[i]));
+    }
+
+    while (pq.size() > 1) {
+        Node* left = new Node(pq.top().data, pq.top().freq);
+        pq.pop();
+        Node* right = new Node(pq.top().data, pq.top().freq);
+        pq.pop();
+
+        Node* merged = new Node('\0', left->freq + right->freq);
+        merged->left = left;
+        merged->right = right;
+        pq.push(*merged);
+    }
+
+    return new Node('\0', pq.top().freq);
+}
+
+void generate_huffman_codes(Node* root, const string& code, unordered_map<char, string>& codes) {
+    if (root == nullptr) {
+        return;
+    }
+
+    if (root->data != '\0') {
+        codes[root->data] = code;
+    }
+
+    generate_huffman_codes(root->left, code + '0', codes);
+    generate_huffman_codes(root->right, code + '1', codes);
+}
+
+void print_huffman_codes(const string& s, const vector<int>& f) {
+    Node* root = build_huffman_tree(s, f);
+    unordered_map<char, string> codes;
+    generate_huffman_codes(root, "", codes);
+
+    cout << "Huffman codes will be:" << endl;
+    for (char c : s) {
+        cout << "  " << c << " : " << codes[c] << endl;
+    }
+
+    delete root;
+}
+
+int main() {
+    string S = "abcdef";
+    vector<int> f = {5, 9, 12, 13, 16, 45};
+    print_huffman_codes(S, f);
+
+    return 0;
+}
